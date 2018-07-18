@@ -1,0 +1,48 @@
+{
+    "server": {
+        "protocol": "http",
+        "port": 8080
+    },
+    "request": {
+        "limit": "1024mb",
+        "show_post": true,
+        "show_get": true
+    },
+    "session": {
+        "secret": "sirius_secret_4d2f86",
+        "maxAge": 36000000
+    },
+    "folders": {
+        "routes": "routes",
+        "models": "models"
+    },
+    "database": {
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "project-management",
+        "port": 3306,
+        "dialect": "mysql"
+    },
+    "encryption": {
+        "salt_rounds": 10
+    },
+    "migration": {
+        "watch": false,
+        "renew": false
+    },
+    "environment": "development",
+    "time": {
+        "zone": "+08:00"
+    },
+    "user_token": {
+        "use": true,
+        "tokenSecret": "77120a4ab35ac7d7e35612426d9c7d07",
+        "refreshTokenSecret": "ac4f6110b37ecf34ae8145c758294326",
+        "userModel": "User",
+        "tokenModel": "Token",
+        "tokenExpire": "1m",
+        "refreshTokenExpire": "7d"
+    },
+    "cors": "*"
+}
