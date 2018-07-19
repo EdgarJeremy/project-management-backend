@@ -31,7 +31,7 @@ async function getNewTokens(refreshToken, userModel, tokenModel, tokenSecret, re
 
     if (!userId) return {};
 
-    const user = await userModel.findOne({ include: [{ model: tokenModel }], where: { id: userId } });
+    const user = await userModel.findOne({ where: { id: userId } });
     if (!user) return {};
 
     const refreshKey = refreshTokenSecret + user.password;
@@ -61,10 +61,13 @@ export default (opts) => {
     
         req.invalidateAllToken = async (me) => {
             const oldTokenPromises = [];
-            me.getTokens().forEach((tk) => {
-                oldTokenPromises.push(tk.update({ used: 1 }));
-            });
-            await Promise.all(oldTokenPromises);
+            const tokens = await me.getTokens();
+            if(tokens) {
+                tokens.forEach((tk) => {
+                    oldTokenPromises.push(tk.update({ used: 1 }));
+                });
+            }
+            return await Promise.all(oldTokenPromises);
         }
 
         /**

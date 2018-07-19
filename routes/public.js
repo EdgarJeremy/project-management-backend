@@ -3,6 +3,7 @@
  */
 import bcrypt from "bcrypt";
 import { requiredPost } from "../middlewares/validator/request_fields";
+import { a } from "../middlewares/wrapper/request_wrapper";
 
 function api(app, models, socketListener) {
     let router = app.get("express").Router();
@@ -11,7 +12,7 @@ function api(app, models, socketListener) {
      * Router disini..
      */
 
-    router.post("/login", requiredPost(["username", "password"]), async (req, res) => {
+    router.post("/login", requiredPost(["username", "password"]), a(async (req, res) => {
         const { User, Token } = models;
         const body = req.body;
         const user = await User.findOne({
@@ -42,7 +43,7 @@ function api(app, models, socketListener) {
             res.setMessage("Username / Password salah");
             res.go();
         }
-    });
+    }));
 
     router.get("/check", (req, res) => {
         res.setStatus(req.user ? res.OK : res.GAGAL);
@@ -51,16 +52,16 @@ function api(app, models, socketListener) {
         res.go();
     });
 
-    router.get("/logout", (req, res) => {
+    router.get("/logout", a(async(req, res) => {
         if(req.user)
-            req.invalidateAllToken(req.user);
+            await req.invalidateAllToken(req.user);
         res.set("Access-Control-Expose-Headers", "x-access-token, x-refresh-token");
         res.set("x-access-token", "");
         res.set("x-refresh-token", "");
         res.setStatus(res.OK);
         res.setData("Berhasil logout");
         res.go();
-    });
+    }));
 
     return router;
 }

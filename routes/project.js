@@ -18,24 +18,47 @@ function project(app, models, socketListener) {
         const { limit = 30, offset = 0 } = req.query;
         const { Project, Participant, User, Role, Requirement } = models;
         const { user } = req;
-        let projects = await Project.findAndCountAll({
-            where: { user_id: user.id },
-            include: [{
-                model: Participant,
-                include: [
-                    { model: User, attributes: { exclude: ['password'] } },
-                    { model: Role }
-                ]
-            }, {
-                model: User,
-                attributes: { exclude: ['password'] }
-            },{
-                model: Requirement
-            }],
-            order: ['deadline'],
-            limit: parseInt(limit, 10),
-            offset: parseInt(offset, 10)
-        });
+        let projects = [];
+        if (user.type === 'manager') {
+            projects = await Project.findAndCountAll({
+                where: { user_id: user.id },
+                include: [{
+                    model: Participant,
+                    include: [
+                        { model: User, attributes: { exclude: ['password'] } },
+                        { model: Role }
+                    ]
+                }, {
+                    model: User,
+                    attributes: { exclude: ['password'] }
+                }, {
+                    model: Requirement
+                }],
+                order: ['deadline'],
+                limit: parseInt(limit, 10),
+                offset: parseInt(offset, 10)
+            });
+        } else if(user.type === 'employee') {
+            projects = await Project.findAndCountAll({
+                include: [{
+                    model: Participant,
+                    where: { user_id: user.id },
+                    include: [
+                        { model: User, attributes: { exclude: ['password'] } },
+                        { model: Role }
+                    ]
+                }, {
+                    model: User,
+                    attributes: { exclude: ['password'] }
+                }, {
+                    model: Requirement
+                }],
+                order: ['deadline'],
+                limit: parseInt(limit, 10),
+                offset: parseInt(offset, 10)
+            })
+        }
+        
         res.setStatus(res.OK);
         res.setData(projects);
         res.go();
@@ -89,7 +112,7 @@ function project(app, models, socketListener) {
                         role_id: participant.role_id
                     }));
                 });
-                if(Array.isArray(requirements)) {
+                if (Array.isArray(requirements)) {
                     let newRequirements = [];
                     requirements.forEach(async (requirement) => {
                         newRequirements.push(await Requirement.create({
@@ -141,7 +164,7 @@ function project(app, models, socketListener) {
         const { Project } = models;
 
         let project = await Project.findOne({ where: { id, user_id } });
-        if(project) {
+        if (project) {
             let deleted = await project.destroy();
             res.setStatus(res.OK);
             res.setData(deleted);
