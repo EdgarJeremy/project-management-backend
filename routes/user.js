@@ -20,9 +20,21 @@ function user(app, models, socketListener) {
     router.get('/index', a(async (req, res) => {
         const { limit = 30, offset = 0 } = req.query;
         const { User } = models;
+        const { not } = models.Sequelize.Op;
+        const { user } = req;
+        let where = {};
+        if(user.type === 'manager') {
+            where = {
+                id: {
+                    [not]: user.id
+                },
+                type: 'employee'
+            }
+        }
         let users = await User.findAndCountAll({
             attributes: { exclude: ['password'] },
             order: ['name'],
+            where,
             limit: parseInt(limit, 10),
             offset: parseInt(offset, 10)
         });
