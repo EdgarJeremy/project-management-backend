@@ -14,7 +14,7 @@ export default (sequelize, DataTypes) => {
             allowNull: false
         },
         type: {
-            type: DataTypes.ENUM(['employee', 'manager'])
+            type: DataTypes.ENUM(['employee', 'manager', 'admin'])
         }
     }, {
         underscored: true
