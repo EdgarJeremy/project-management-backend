@@ -38,7 +38,7 @@ function project(app, models, socketListener) {
                 limit: parseInt(limit, 10),
                 offset: parseInt(offset, 10)
             });
-        } else if(user.type === 'employee') {
+        } else if (user.type === 'employee') {
             projects = await Project.findAndCountAll({
                 include: [{
                     model: Participant,
@@ -58,7 +58,7 @@ function project(app, models, socketListener) {
                 offset: parseInt(offset, 10)
             })
         }
-        
+
         res.setStatus(res.OK);
         res.setData(projects);
         res.go();
@@ -67,21 +67,41 @@ function project(app, models, socketListener) {
     router.get('/show/:id', a(async (req, res) => {
         const { id } = req.params;
         const { Project, Participant, User, Role } = models;
-        const { id: user_id } = req.user;
+        const { id: user_id, type } = req.user;
 
-        let project = await Project.findOne({
-            where: { id, user_id },
-            include: [{
-                model: Participant,
-                include: [
-                    { model: User, attributes: { exclude: ['password'] } },
-                    { model: Role }
-                ]
-            }, {
-                model: User,
-                attributes: { exclude: ['password'] }
-            }],
-        });
+        let project = null;
+
+        if (type === 'manager') {
+            project = await Project.findOne({
+                where: { id, user_id },
+                include: [{
+                    model: Participant,
+                    include: [
+                        { model: User, attributes: { exclude: ['password'] } },
+                        { model: Role }
+                    ]
+                }, {
+                    model: User,
+                    attributes: { exclude: ['password'] }
+                }],
+            });
+        } else if (type === 'employee') {
+            project = await Project.findOne({
+                where: { id },
+                include: [{
+                    model: Participant,
+                    where: { user_id },
+                    include: [
+                        { model: User, attributes: { exclude: ['password'] } },
+                        { model: Role }
+                    ]
+                }, {
+                    model: User,
+                    attributes: { exclude: ['password'] }
+                }],
+            });
+        }
+
         if (project) {
             res.setStatus(res.OK);
             res.setData(project);
