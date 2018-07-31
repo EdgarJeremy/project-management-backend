@@ -66,7 +66,7 @@ function project(app, models, socketListener) {
 
     router.get('/show/:id', a(async (req, res) => {
         const { id } = req.params;
-        const { Project, Participant, User, Role } = models;
+        const { Project, Participant, User, Role, Requirement } = models;
         const { id: user_id, type } = req.user;
 
         let project = null;
@@ -83,6 +83,8 @@ function project(app, models, socketListener) {
                 }, {
                     model: User,
                     attributes: { exclude: ['password'] }
+                }, {
+                    model: Requirement
                 }],
             });
         } else if (type === 'employee') {
@@ -98,6 +100,8 @@ function project(app, models, socketListener) {
                 }, {
                     model: User,
                     attributes: { exclude: ['password'] }
+                }, {
+                    model: Requirement
                 }],
             });
         }
