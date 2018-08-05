@@ -22,6 +22,7 @@ function project(app, models, socketListener) {
         if (user.type === 'manager') {
             projects = await Project.findAndCountAll({
                 where: { user_id: user.id },
+                distinct: true,
                 include: [{
                     model: Participant,
                     include: [
@@ -40,6 +41,7 @@ function project(app, models, socketListener) {
             });
         } else if (user.type === 'employee') {
             projects = await Project.findAndCountAll({
+                distinct: true,
                 include: [{
                     model: Participant,
                     where: { user_id: user.id },

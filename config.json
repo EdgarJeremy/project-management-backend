@@ -31,7 +31,7 @@
         "watch": false,
         "renew": false
     },
-    "environment": "production",
+    "environment": "development",
     "time": {
         "zone": "+08:00"
     },
